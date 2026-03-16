@@ -1,0 +1,50 @@
+{
+  "login": {
+    "title": "Water",
+    "subtitle": "System",
+    "desc": "Су ресурстарын бақылау үшін идентификатор мен құпия сөзді енгізіңіз.",
+    "idLabel": "Идентификатор",
+    "idPlaceholder": "Логин",
+    "passLabel": "Құпия сөз",
+    "passPlaceholder": "••••••••",
+    "loginBtn": "Кіру",
+    "error": "Логин немесе құпия сөз қате"
+  },
+ "report": {
+    "coeffA": "Коэф. a",
+    "coeffB": "Коэф. b",
+    "helpA": "Қисық сызықтың көлбеу коэффициенті. Төмен деңгейдегі шығынның өсу жылдамдығын анықтайды.",
+    "helpB": "Қисықтық коэффициенті. Тереңдік артқан сайын арнаның кеңеюін ескереді.",
+    "start": "Басы",
+    "end": "Соңы",
+    "showBtn": "Көрсету",
+    "loading": "Жүктелуде...",
+    "updated": "Жаңартылды",
+    "excel": "Excel",
+    "pdf": "PDF",
+    "chartLevel": "Деңгей",
+    "chartDischarge": "Шығын",
+    "unitCm": "см",
+    "unitM3": "м³/с",
+    "tableDate": "Күні",
+    "tableAvgLevel": "Орташа деңгей (см)",
+    "tableAvgQ": "Орташа шығын (м³/с)",
+    "excelSummary": "ОРТАША КӨРСЕТКІШТЕР",
+    "excelDetails": "ТОЛЫҚ ЕСЕП",
+    "sheetSummary": "Орташа",
+    "sheetDetails": "Толығырақ"
+},
+  "dashboard": {
+    "logout": "Шығу",
+    "currentLevel": "Ағымдағы деңгей",
+    "cm": "см",
+    "updated": "Жаңартылды",
+    "weatherLoading": "Ауа райы жүктелуде...",
+    "wind": "Жел",
+    "ms": "м/с",
+    "pressure": "Қысым",
+    "mm": "мм",
+    "goToReport": "Есепке өту",
+    "loading": "Жүктелуде..."
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "login": {
+    "title": "Water",
+    "subtitle": "System",
+    "desc": "Введите идентификатор и пароль доступа к мониторингу водных ресурсов.",
+    "idLabel": "Идентификатор",
+    "idPlaceholder": "Логин",
+    "passLabel": "Пароль доступа",
+    "passPlaceholder": "••••••••",
+    "loginBtn": "Авторизоваться",
+    "error": "Неверный логин или пароль"
+  },
+  "report": {
+    "coeffA": "Коэф. a",
+    "coeffB": "Коэф. b",
+    "helpA": "Коэффициент наклона кривой. Определяет скорость роста расхода при малых уровнях.",
+    "helpB": "Коэффициент кривизны. Учитывает расширение русла при увеличении глубины.",
+    "start": "Начало",
+    "end": "Конец",
+    "showBtn": "Показать",
+    "loading": "Загрузка...",
+    "updated": "Обновлено",
+    "excel": "Excel",
+    "pdf": "PDF",
+    "chartLevel": "Уровень",
+    "chartDischarge": "Расход",
+    "unitCm": "см",
+    "unitM3": "м³/с",
+    "tableDate": "Дата",
+    "tableAvgLevel": "Ср. уровень (см)",
+    "tableAvgQ": "Ср. расход (м³/с)",
+    "excelSummary": "СРЕДНИЕ ПОКАЗАТЕЛИ",
+    "excelDetails": "ДЕТАЛЬНЫЙ ОТЧЕТ",
+    "sheetSummary": "Среднее",
+    "sheetDetails": "Детали"
+},
+  "dashboard": {
+    "logout": "Выйти",
+    "currentLevel": "Текущий уровень",
+    "cm": "см",
+    "updated": "Обновлено",
+    "weatherLoading": "Загрузка погоды...",
+    "wind": "Ветер",
+    "ms": "м/с",
+    "pressure": "Давление",
+    "mm": "мм",
+    "goToReport": "Перейти к отчету",
+    "loading": "Загрузка..."
+  }
+}

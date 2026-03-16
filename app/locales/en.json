@@ -1,0 +1,50 @@
+{
+  "login": {
+    "title": "Water",
+    "subtitle": "System",
+    "desc": "Enter your identifier and access password to monitor water resources.",
+    "idLabel": "Identifier",
+    "idPlaceholder": "Login",
+    "passLabel": "Access Password",
+    "passPlaceholder": "••••••••",
+    "loginBtn": "Sign In",
+    "error": "Invalid login or password"
+  },
+  "report": {
+    "coeffA": "Coeff. a",
+    "coeffB": "Coeff. b",
+    "helpA": "Slope coefficient. Determines the growth rate of discharge at low water levels.",
+    "helpB": "Curvature coefficient. Accounts for channel expansion as depth increases.",
+    "start": "Start",
+    "end": "End",
+    "showBtn": "Show",
+    "loading": "Loading...",
+    "updated": "Updated",
+    "excel": "Excel",
+    "pdf": "PDF",
+    "chartLevel": "Level",
+    "chartDischarge": "Discharge",
+    "unitCm": "cm",
+    "unitM3": "m³/s",
+    "tableDate": "Date",
+    "tableAvgLevel": "Avg. Level (cm)",
+    "tableAvgQ": "Avg. Discharge (m³/s)",
+    "excelSummary": "SUMMARY STATS",
+    "excelDetails": "DETAILED REPORT",
+    "sheetSummary": "Summary",
+    "sheetDetails": "Details"
+  },
+  "dashboard": {
+    "logout": "Logout",
+    "currentLevel": "Current Level",
+    "cm": "cm",
+    "updated": "Updated",
+    "weatherLoading": "Loading weather...",
+    "wind": "Wind",
+    "ms": "m/s",
+    "pressure": "Pressure",
+    "mm": "mm",
+    "goToReport": "Go to report",
+    "loading": "Loading..."
+  }
+}
