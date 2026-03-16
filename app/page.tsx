@@ -5,10 +5,9 @@ import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-// Ключ OpenWeather
-const WEATHER_API_KEY = '88d591a394d7aec06486bad31ebc63a0'
+// --- Ключ теперь берется из переменных окружения ---
+const WEATHER_API_KEY = process.env.NEXT_PUBLIC_WEATHER_API_KEY
 
-// --- Подключение ваших JSON переводов ---
 const locales = {
   ru: {
     logout: 'Выйти',
@@ -88,7 +87,6 @@ export default function Dashboard() {
   const [isAuth, setIsAuth] = useState(false)
   const [weather, setWeather] = useState<WeatherData | null>(null)
 
-  // Состояние языка (берем из localStorage или по умолчанию 'ru')
   const [lang, setLang] = useState<Lang>(() => {
     if (typeof window !== 'undefined') {
       return (localStorage.getItem('lang') as Lang) || 'ru'
@@ -118,6 +116,12 @@ export default function Dashboard() {
   }
 
   const fetchWeather = async (lat: number, lon: number, currentLang: Lang) => {
+    // Проверка наличия ключа
+    if (!WEATHER_API_KEY) {
+      console.error("Weather API Key is missing!")
+      return
+    }
+
     try {
       const apiLang = currentLang === 'kk' ? 'kz' : currentLang
       const res = await fetch(
@@ -246,8 +250,7 @@ export default function Dashboard() {
           </h1>
 
           <div className="flex items-center gap-4">
-            {/* Переключатель языков на основе ваших файлов */}
-            <div className=" top-4 right-4 z-50 flex gap-1 bg-slate-900/90 p-1 rounded-xl border border-white/10 backdrop-blur-md">
+            <div className="z-50 flex gap-1 bg-slate-900/90 p-1 rounded-xl border border-white/10 backdrop-blur-md">
               {(['ru', 'kk', 'en'] as Lang[]).map((l) => (
                 <button
                   key={l}
