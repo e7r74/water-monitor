@@ -5,50 +5,15 @@ import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-// --- Ключ теперь берется из переменных окружения ---
+// Импортируем локализации из твоих JSON файлов
+import ru from './locales/ru.json'
+import kk from './locales/kk.json'
+import en from './locales/en.json'
+
 const WEATHER_API_KEY = process.env.NEXT_PUBLIC_WEATHER_API_KEY
 
-const locales = {
-  ru: {
-    logout: 'Выйти',
-    currentLevel: 'Текущий уровень',
-    cm: 'см',
-    updated: 'Обновлено',
-    weatherLoading: 'Загрузка погоды...',
-    wind: 'Ветер',
-    ms: 'м/с',
-    pressure: 'Давление',
-    mm: 'мм',
-    goToReport: 'Перейти к отчету',
-    loading: 'Загрузка...',
-  },
-  kk: {
-    logout: 'Шығу',
-    currentLevel: 'Ағымдағы деңгей',
-    cm: 'см',
-    updated: 'Жаңартылды',
-    weatherLoading: 'Ауа райы жүктелуде...',
-    wind: 'Жел',
-    ms: 'м/с',
-    pressure: 'Қысым',
-    mm: 'мм',
-    goToReport: 'Есепке өту',
-    loading: 'Жүктелуде...',
-  },
-  en: {
-    logout: 'Logout',
-    currentLevel: 'Current Level',
-    cm: 'cm',
-    updated: 'Updated',
-    weatherLoading: 'Loading weather...',
-    wind: 'Wind',
-    ms: 'm/s',
-    pressure: 'Pressure',
-    mm: 'mm',
-    goToReport: 'Go to report',
-    loading: 'Loading...',
-  },
-}
+// Объект со всеми переводами
+const locales = { ru, kk, en }
 
 type Lang = 'ru' | 'kk' | 'en'
 
@@ -94,7 +59,8 @@ export default function Dashboard() {
     return 'ru'
   })
 
-  const t = locales[lang]
+  // Теперь обращаемся через .dashboard, как в твоих JSON
+  const t = locales[lang].dashboard
 
   const [sensorData, setSensorData] = useState({
     name: '',
@@ -116,9 +82,8 @@ export default function Dashboard() {
   }
 
   const fetchWeather = async (lat: number, lon: number, currentLang: Lang) => {
-    // Проверка наличия ключа
     if (!WEATHER_API_KEY) {
-      console.error("Weather API Key is missing!")
+      console.error('Weather API Key is missing!')
       return
     }
 
@@ -321,8 +286,12 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-4xl border border-slate-700 shadow-2xl">
-          <Map pos={[sensorData.lat, sensorData.lng]} name={sensorData.name || t.loading} />
+        <div className="overflow-hidden rounded-4xl border border-slate-700 shadow-2xl h-[400px]">
+          <Map
+            key={`${sensorData.lat}-${sensorData.lng}`} // Добавь эту строку!
+            pos={[sensorData.lat, sensorData.lng]}
+            name={sensorData.name || t.loading}
+          />
         </div>
 
         <Link

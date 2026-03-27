@@ -35,9 +35,11 @@ interface WialonMessage {
   p?: Record<string, number | string | undefined>
 }
 
+// Импортируем компонент карты.
+// Убедитесь, что файл лежит в app/components/Map.tsx
 const Map = dynamic(() => import('../components/Map'), {
   ssr: false,
-  loading: () => <div className="h-75 bg-slate-800 animate-pulse rounded-4xl" />,
+  loading: () => <div className="h-80 bg-slate-800 animate-pulse rounded-4xl" />,
 })
 
 export default function WaterReportPage() {
@@ -47,7 +49,7 @@ export default function WaterReportPage() {
 
   const [lang, setLang] = useState<Lang>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('app_lang') as Lang
+      const saved = localStorage.getItem('lang') as Lang
       return saved && translations[saved] ? saved : 'ru'
     }
     return 'ru'
@@ -55,6 +57,7 @@ export default function WaterReportPage() {
 
   const t = translations[lang].report
 
+  // Начальные координаты (Алматы по умолчанию)
   const [mapPos, setMapPos] = useState<[number, number]>([43.2425, 76.9592])
   const [unitName, setUnitName] = useState(t.loading)
 
@@ -62,7 +65,6 @@ export default function WaterReportPage() {
   const [toDate, setToDate] = useState(new Date().toISOString().slice(0, 16))
   const [isLoading, setIsLoading] = useState(false)
 
-  // Используем строковые состояния для полей ввода, чтобы не было проблем с вводом точек и запятых
   const [coeffA, setCoeffA] = useState('0.857410584')
   const [coeffB, setCoeffB] = useState('2.096947')
 
@@ -87,7 +89,7 @@ export default function WaterReportPage() {
             params: {
               spec: { itemsType: 'avl_unit', propName: 'sys_name', propValueMask: '*', sortType: 'sys_name' },
               force: 1,
-              flags: 1 + 4096,
+              flags: 1 + 1024 + 4096, // Флаги 1024 и 4096 нужны для датчиков и позиции
               from: 0,
               to: 0,
             },
@@ -97,14 +99,23 @@ export default function WaterReportPage() {
         const unitData = await unitRes.json()
 
         let targetSensor: WialonSensor | null = null
+        let currentUnitId: number | null = null
+
         if (unitData.items && unitData.items[0]) {
           const unit = unitData.items[0]
-          setMapPos([unit.pos?.y || 43.2425, unit.pos?.x || 76.9592])
+          currentUnitId = unit.id
+
+          // Обновляем позицию карты из данных объекта
+          if (unit.pos) {
+            setMapPos([unit.pos.y, unit.pos.x])
+          }
           setUnitName(unit.nm)
 
           const sensors = Object.values(unit.sens || {}) as WialonSensor[]
           targetSensor = sensors.find((s) => s.n === 'Уровень' || s.t === 'level') || null
         }
+
+        if (!currentUnitId) return
 
         const fromTimestamp = Math.floor(new Date(fromDate).getTime() / 1000)
         const toTimestamp = Math.floor(new Date(toDate).getTime() / 1000)
@@ -115,7 +126,7 @@ export default function WaterReportPage() {
           body: JSON.stringify({
             svc: 'messages/load_interval',
             params: {
-              itemId: 29672520,
+              itemId: currentUnitId,
               timeFrom: fromTimestamp,
               timeTo: toTimestamp,
               flags: 0,
@@ -129,7 +140,6 @@ export default function WaterReportPage() {
         const data = await msgRes.json()
         const messages: WialonMessage[] = data.messages || []
 
-        // Преобразуем строковые коэффициенты в числа для расчетов
         const numA = parseFloat(coeffA.replace(',', '.')) || 0
         const numB = parseFloat(coeffB.replace(',', '.')) || 0
 
@@ -139,7 +149,6 @@ export default function WaterReportPage() {
           const rawValue = Number(m.p?.[paramName]) || 0
 
           let levelInCm = 0
-
           if (targetSensor?.tbl && targetSensor.tbl.length > 0) {
             const tbl = [...targetSensor.tbl].sort((a, b) => b.x - a.x)
             const row = tbl.find((r) => rawValue >= r.x) || tbl[tbl.length - 1]
@@ -220,14 +229,14 @@ export default function WaterReportPage() {
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white p-4 md:p-8 font-sans">
-      {/* Переключатель языков */}
+      {/* Языковой переключатель */}
       <div className="fixed top-4 right-4 z-50 flex gap-1 bg-slate-900/90 p-1 rounded-xl border border-white/10 backdrop-blur-md">
         {(['ru', 'en', 'kk'] as Lang[]).map((l) => (
           <button
             key={l}
             onClick={() => {
               setLang(l)
-              localStorage.setItem('app_lang', l)
+              localStorage.setItem('lang', l)
             }}
             className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase transition-all ${
               lang === l ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
@@ -238,13 +247,11 @@ export default function WaterReportPage() {
       </div>
 
       <div className="max-w-5xl mx-auto space-y-6">
+        {/* Панель фильтров */}
         <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 shadow-xl">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-            {/* Поле КОЭФФ. А */}
             <div className="relative">
-              <label className="text-blue-400 text-[10px] mb-2 uppercase font-bold tracking-wider block">
-                {t.coeffA}
-              </label>
+              <label className="text-blue-400 text-[10px] mb-2 uppercase font-bold block">{t.coeffA}</label>
               <input
                 type="text"
                 value={coeffA}
@@ -252,11 +259,8 @@ export default function WaterReportPage() {
                 className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-white outline-none focus:ring-1 focus:ring-blue-500 transition-all"
               />
             </div>
-            {/* Поле КОЭФФ. В */}
             <div className="relative">
-              <label className="text-blue-400 text-[10px] mb-2 uppercase font-bold tracking-wider block">
-                {t.coeffB}
-              </label>
+              <label className="text-blue-400 text-[10px] mb-2 uppercase font-bold block">{t.coeffB}</label>
               <input
                 type="text"
                 value={coeffB}
@@ -270,7 +274,7 @@ export default function WaterReportPage() {
                 type="datetime-local"
                 value={fromDate}
                 onChange={(e) => setFromDate(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-xs outline-none focus:ring-1 focus:ring-slate-500 transition-all"
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-xs"
               />
             </div>
             <div>
@@ -279,7 +283,7 @@ export default function WaterReportPage() {
                 type="datetime-local"
                 value={toDate}
                 onChange={(e) => setToDate(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-xs outline-none focus:ring-1 focus:ring-slate-500 transition-all"
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-xs"
               />
             </div>
             <button
@@ -290,31 +294,30 @@ export default function WaterReportPage() {
           </div>
         </div>
 
+        {/* Заголовок и кнопки */}
         <div className="flex justify-between items-center border-b border-slate-800 pb-6">
           <div>
-            <h1 className="text-2xl font-bold uppercase tracking-tight">{unitName}</h1>
-            <p className="text-slate-500 text-sm italic">
-              <span className="text-blue-400/80 not-italic font-mono mr-3">
-                Q = {coeffA}·H + {coeffB}·H²
-              </span>
-              {t.updated}: {lastUpdate}
+            <h1 className="text-2xl font-bold uppercase">{unitName}</h1>
+            <p className="text-slate-500 text-sm">
+              Q = {coeffA}·H + {coeffB}·H² | {t.updated}: {lastUpdate}
             </p>
           </div>
           <div className="flex gap-3">
             <button
               onClick={exportToExcel}
-              className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-emerald-900/20">
+              className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-medium transition-all">
               {t.excel}
             </button>
             <button
               onClick={() => window.print()}
-              className="bg-red-600 hover:bg-red-500 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-red-900/20">
+              className="bg-red-600 hover:bg-red-500 text-white px-5 py-2.5 rounded-xl font-medium transition-all">
               {t.pdf}
             </button>
           </div>
         </div>
 
-        <div className="bg-slate-900/50 border border-slate-800 rounded-4xl p-6 h-96 shadow-inner">
+        {/* График */}
+        <div className="bg-slate-900/50 border border-slate-800 rounded-4xl p-6 h-96">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
@@ -348,6 +351,7 @@ export default function WaterReportPage() {
           </ResponsiveContainer>
         </div>
 
+        {/* Таблица */}
         <div className="bg-slate-900/80 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
           <table className="w-full text-left text-sm">
             <thead className="text-slate-500 uppercase text-[10px] font-bold border-b border-slate-800 bg-slate-900/40">
@@ -369,8 +373,10 @@ export default function WaterReportPage() {
           </table>
         </div>
 
-        <div className="rounded-4xl overflow-hidden border border-slate-800 h-80 shadow-2xl transition-all hover:border-slate-600">
-          <Map pos={mapPos} name={unitName} />
+        {/* КАРТА */}
+        <div className="rounded-4xl overflow-hidden border border-slate-800 h-80 shadow-2xl">
+          {/* Добавление key={mapPos.join(',')} заставляет React обновить карту при смене координат */}
+          <Map key={mapPos.join(',')} pos={mapPos} name={unitName} />
         </div>
       </div>
     </div>
