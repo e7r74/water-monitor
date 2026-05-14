@@ -41,6 +41,7 @@ interface WeatherData {
   pressure: number
 }
 
+
 const Map = dynamic(() => import('./components/Map'), {
   ssr: false,
   loading: () => <div className="h-100 bg-slate-800 animate-pulse rounded-3xl" />,

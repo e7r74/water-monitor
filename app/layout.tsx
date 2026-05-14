@@ -16,28 +16,28 @@ export const metadata: Metadata = {
   description:
     'Профессиональная система мониторинга уровня воды в реальном времени. Отслеживание датчиков, аналитика и уведомления.',
   keywords: ['мониторинг воды', 'уровень воды', 'IoT датчики', 'Water-Monitoring', 'контроль воды'],
-  authors: [{ name: 'Ваше Имя/Команда' }],
+  authors: [{ name: 'Agrarkz' }],
 
   // Настройка для соцсетей (Facebook, VK, WhatsApp)
-  openGraph: {
-    title: 'Water-Monitoring Dashboard',
-    description: 'Система контроля и мониторинга уровня воды в реальном времени',
-    url: 'https://vash-sait.ru',
-    siteName: 'Water-Monitor',
-    locale: 'ru_RU',
-    type: 'website',
-  },
+  // openGraph: {
+  //   title: 'Water-Monitoring Dashboard',
+  //   description: 'Система контроля и мониторинга уровня воды в реальном времени',
+  //   url: 'https://vash-sait.ru',
+  //   siteName: 'Water-Monitor',
+  //   locale: 'ru_RU',
+  //   type: 'website',
+  // },
 
-  // Настройка для Twitter
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Water-Monitoring Dashboard',
-    description: 'Система контроля уровня воды',
-  },
+  // // Настройка для Twitter
+  // twitter: {
+  //   card: 'summary_large_image',
+  //   title: 'Water-Monitoring Dashboard',
+  //   description: 'Система контроля уровня воды',
+  // },
 
   // Иконки (favicons)
   icons: {
-    icon: '/favicon.ico',
+    icon: '/icon.png',
     apple: '/apple-touch-icon.png',
   },
 }
