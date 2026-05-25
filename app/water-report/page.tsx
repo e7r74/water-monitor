@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts'
 import * as XLSX from 'xlsx'
@@ -35,8 +35,6 @@ interface WialonMessage {
   p?: Record<string, number | string | undefined>
 }
 
-// Импортируем компонент карты.
-// Убедитесь, что файл лежит в app/components/Map.tsx
 const Map = dynamic(() => import('../components/Map'), {
   ssr: false,
   loading: () => <div className="h-80 bg-slate-800 animate-pulse rounded-4xl" />,
@@ -57,7 +55,6 @@ export default function WaterReportPage() {
 
   const t = translations[lang].report
 
-  // Начальные координаты (Алматы по умолчанию)
   const [mapPos, setMapPos] = useState<[number, number]>([43.2425, 76.9592])
   const [unitName, setUnitName] = useState(t.loading)
 
@@ -65,8 +62,30 @@ export default function WaterReportPage() {
   const [toDate, setToDate] = useState(new Date().toISOString().slice(0, 16))
   const [isLoading, setIsLoading] = useState(false)
 
-  const [coeffA, setCoeffA] = useState('0.857410584')
-  const [coeffB, setCoeffB] = useState('2.096947')
+  // Инициализируем коэффициенты из LocalStorage, если они там есть
+  const [coeffA, setCoeffA] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('coeff_a') || '0.857410584'
+    }
+    return '0.857410584'
+  })
+
+  const [coeffB, setCoeffB] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('coeff_b') || '2.096947'
+    }
+    return '2.096947'
+  })
+
+  // Используем useRef для стабильного доступа внутри интервалов автообновления
+  const coeffsRef = useRef({ a: coeffA, b: coeffB })
+
+  // Синхронизируем рефы и сохраняем значения в LocalStorage при каждом изменении
+  useEffect(() => {
+    coeffsRef.current = { a: coeffA, b: coeffB }
+    localStorage.setItem('coeff_a', coeffA)
+    localStorage.setItem('coeff_b', coeffB)
+  }, [coeffA, coeffB])
 
   const fetchHistoryData = useCallback(
     async (isAutoUpdate = false) => {
@@ -89,7 +108,7 @@ export default function WaterReportPage() {
             params: {
               spec: { itemsType: 'avl_unit', propName: 'sys_name', propValueMask: '*', sortType: 'sys_name' },
               force: 1,
-              flags: 1 + 1024 + 4096, // Флаги 1024 и 4096 нужны для датчиков и позиции
+              flags: 1 + 1024 + 4096,
               from: 0,
               to: 0,
             },
@@ -105,7 +124,6 @@ export default function WaterReportPage() {
           const unit = unitData.items[0]
           currentUnitId = unit.id
 
-          // Обновляем позицию карты из данных объекта
           if (unit.pos) {
             setMapPos([unit.pos.y, unit.pos.x])
           }
@@ -140,8 +158,8 @@ export default function WaterReportPage() {
         const data = await msgRes.json()
         const messages: WialonMessage[] = data.messages || []
 
-        const numA = parseFloat(coeffA.replace(',', '.')) || 0
-        const numB = parseFloat(coeffB.replace(',', '.')) || 0
+        const numA = parseFloat(coeffsRef.current.a.replace(',', '.')) || 0
+        const numB = parseFloat(coeffsRef.current.b.replace(',', '.')) || 0
 
         const formattedData: ChartPoint[] = messages.map((m) => {
           const dateObj = new Date(m.t * 1000)
@@ -183,7 +201,7 @@ export default function WaterReportPage() {
         setIsLoading(false)
       }
     },
-    [fromDate, toDate, coeffA, coeffB],
+    [fromDate, toDate],
   )
 
   const dailyStats = useMemo(() => {
@@ -221,7 +239,12 @@ export default function WaterReportPage() {
   useEffect(() => {
     setHasRendered(true)
     fetchHistoryData()
-    const interval = setInterval(() => fetchHistoryData(true), 60000)
+  }, [fetchHistoryData])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchHistoryData(true)
+    }, 60000)
     return () => clearInterval(interval)
   }, [fetchHistoryData])
 
@@ -375,7 +398,6 @@ export default function WaterReportPage() {
 
         {/* КАРТА */}
         <div className="rounded-4xl overflow-hidden border border-slate-800 h-80 shadow-2xl">
-          {/* Добавление key={mapPos.join(',')} заставляет React обновить карту при смене координат */}
           <Map key={mapPos.join(',')} pos={mapPos} name={unitName} />
         </div>
       </div>
