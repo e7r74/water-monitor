@@ -65,14 +65,14 @@ export default function WaterReportPage() {
   // Инициализируем коэффициенты из LocalStorage, если они там есть
   const [coeffA, setCoeffA] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('coeff_a') || '0.857410584'
+      return localStorage.getItem('coeff_a') || '2.876315103'
     }
     return '0.857410584'
   })
 
   const [coeffB, setCoeffB] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('coeff_b') || '2.096947'
+      return localStorage.getItem('coeff_b') || '3.081393'
     }
     return '2.096947'
   })
